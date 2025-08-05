@@ -3,16 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Real-time d10 Roller</title>
+  <title>🎲 Real-time d10 Roller</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; text-align: center; }
-    .dice { display: inline-block; margin: 0.5rem; font-size: 2rem; }
-    #results { margin-top: 1rem; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: #f0f0f0;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    input, button {
+      background-color: #1e1e1e;
+      border: 1px solid #333;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+    }
+
+    button:hover {
+      background-color: #333;
+    }
+
+    .dice {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      margin: 0.5rem;
+      background-color: #282c34;
+      border-radius: 10px;
+      font-size: 2rem;
+      line-height: 60px;
+      font-weight: bold;
+      animation: roll 0.6s ease;
+      border: 2px solid #444;
+      box-shadow: 0 0 10px #000;
+    }
+
+    @keyframes roll {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    #results {
+      margin-top: 1.5rem;
+    }
+
+    #rolledBy {
+      margin-top: 1rem;
+      font-style: italic;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
   <h1>🎲 Real-time d10 Dice Roller</h1>
-  <label>Number of dice: 
+  
+  <label>
+    Number of dice: 
     <input type="number" id="diceCount" value="1" min="1" max="10">
   </label>
   <button id="rollBtn">Roll</button>
@@ -37,7 +86,14 @@
     });
 
     socket.on("diceRolled", ({ results, userId, diceCount, timestamp }) => {
-      resultsDiv.innerHTML = results.map(r => `<div class="dice">${r}</div>`).join("");
+      resultsDiv.innerHTML = "";
+      results.forEach(value => {
+        const dice = document.createElement("div");
+        dice.classList.add("dice");
+        dice.textContent = value;
+        resultsDiv.appendChild(dice);
+      });
+
       rolledByDiv.innerText = `${userId} rolled ${diceCount} dice at ${new Date(timestamp).toLocaleTimeString()}`;
     });
   </script>
