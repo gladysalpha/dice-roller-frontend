@@ -41,6 +41,10 @@
       border-radius: 6px;
       margin: 0.25rem;
     }
+	
+	button {
+	cursor:pointer;
+	}
 
     .dice {
       display: inline-block;
@@ -69,6 +73,12 @@
       background-color: #424242 !important;
       color: #bbb;
       border-color: #555;
+    }
+
+    .botch {
+      background-color: #a1302f !important;
+      color: #fff;
+      border-color: #e80b09;
     }
 
     @keyframes roll {
@@ -104,7 +114,7 @@
 	  cursor: pointer;
 	}
 	
-	.rollBtn:hover{
+	button:hover{
 		background:#a38b79;
 		border: 1px solid #eee;
 	}
@@ -117,6 +127,9 @@
     <div class="username-box">
       Username:
       <input type="text" id="username" />
+	  <button id="randomize">
+		R
+	  </button>
     </div>
 
     <label>
@@ -153,15 +166,23 @@
     const diceCountInput = document.getElementById("diceCount");
     const difficultyInput = document.getElementById("difficulty");
     const rollBtn = document.getElementById("rollBtn");
+    const randomizeBtn = document.getElementById("randomize");
     const resultsDiv = document.getElementById("results");
     const rolledByDiv = document.getElementById("rolledBy");
     const historyDiv = document.getElementById("history");
     const usernameInput = document.getElementById("username");
 
-    // Rastgele kullanıcı adı üret
-    const defaultUsername = "User-" + Math.floor(Math.random() * 1000);
-    usernameInput.value = defaultUsername;
-
+    let randomizeUserName = ()=> {
+		const usernameList = ["Bacaksız Toreador", "Demonic Gangrel", "'MAL'kav", "Avel Tremere","Şerif", "Eric", "Aziz", "Vefa"];
+		const randomIndex = Math.floor(Math.random() * usernameList.length);
+		const randomName = usernameList[randomIndex];
+		usernameInput.value = randomName;
+	}
+	randomizeUserName();
+	
+    randomizeBtn.addEventListener("click", () => {
+		randomizeUserName();
+	});
     rollBtn.addEventListener("click", () => {
       const diceCount = Math.min(30, parseInt(diceCountInput.value));
       const difficulty = parseInt(difficultyInput.value);
@@ -177,7 +198,9 @@
         dice.classList.add("dice");
         if (value >= difficulty) {
           dice.classList.add("success");
-        } else {
+        }else if(value === 1 && difficulty > 1){
+			dice.classList.add("botch");
+		} else {
           dice.classList.add("failure");
         }
         dice.textContent = value;
@@ -193,7 +216,7 @@
       historyEntry.innerHTML = `
         <strong>${username}</strong> rolled ${diceCount} dice<br/>
         Difficulty: ${difficulty}<br/>
-        Success Count: ${results.filter((e) => e >= difficulty).length}<br/>
+        Success Count: ${results.filter((e) => e >= difficulty).length - results.filter((e) => e == 1).length}<br/>
         Results: [${results.map((e) => parseInt(e)).sort((a, b) => b - a).join(", ")}]<br/>
         <span style="font-size: 0.9em; color: #888;">${new Date(timestamp).toLocaleTimeString()}</span>
       `;
