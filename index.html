@@ -9,8 +9,23 @@
       font-family: 'Segoe UI', sans-serif;
       background-color: #121212;
       color: #f0f0f0;
-      text-align: center;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .main {
+      flex: 2;
       padding: 2rem;
+    }
+
+    .sidebar {
+      flex: 1;
+      background-color: #1e1e1e;
+      padding: 1rem;
+      border-left: 1px solid #333;
+      overflow-y: auto;
     }
 
     input, select, button {
@@ -20,10 +35,6 @@
       padding: 0.5rem 1rem;
       border-radius: 6px;
       margin: 0.25rem;
-    }
-
-    button:hover {
-      background-color: #333;
     }
 
     .dice {
@@ -43,13 +54,13 @@
     }
 
     .success {
-      background-color: #2e7d32 !important; /* Yeşil */
+      background-color: #2e7d32 !important;
       color: #fff;
       border-color: #66bb6a;
     }
 
     .failure {
-      background-color: #424242 !important; /* Gri */
+      background-color: #424242 !important;
       color: #bbb;
       border-color: #555;
     }
@@ -69,36 +80,50 @@
       font-style: italic;
       color: #ccc;
     }
+
+    .history-entry {
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #444;
+      padding-bottom: 0.5rem;
+    }
+
+    .username-box {
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
-  <h1>🎲 Real-time d10 Dice Roller</h1>
-  
-  <label>
-    Dice count: 
-    <input type="number" id="diceCount" value="1" min="1" max="10">
-  </label>
+  <div class="main">
+    <h1>🎲 Real-time d10 Dice Roller</h1>
 
-  <label>
-    Difficulty:
+    <div class="username-box">
+      Username:
+      <input type="text" id="username" />
+    </div>
+
+    <label>
+      Dice count (max 30): 
+      <input type="number" id="diceCount" value="1" min="1" max="30">
+    </label>
+
+    <label>
+      Difficulty:
       <select id="difficulty">
-  <option value="1">1</option>
-  <option value="2">2</option>
-  <option value="3">3</option>
-  <option value="4">4</option>
-  <option value="5">5</option>
-  <option value="6" selected>6</option>
-  <option value="7">7</option>
-  <option value="8">8</option>
-  <option value="9">9</option>
-  <option value="10">10</option>
-</select>
-  </label>
+        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+      </select>
+    </label>
 
-  <button id="rollBtn">Roll</button>
+    <button id="rollBtn">Roll</button>
 
-  <div id="results"></div>
-  <div id="rolledBy"></div>
+    <div id="results"></div>
+    <div id="rolledBy"></div>
+  </div>
+
+  <div class="sidebar">
+    <h2>📜 Roll History</h2>
+    <div id="history"></div>
+  </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
@@ -109,32 +134,47 @@
     const rollBtn = document.getElementById("rollBtn");
     const resultsDiv = document.getElementById("results");
     const rolledByDiv = document.getElementById("rolledBy");
+    const historyDiv = document.getElementById("history");
+    const usernameInput = document.getElementById("username");
 
-    const userId = "User-" + Math.floor(Math.random() * 1000);
+    // Rastgele kullanıcı adı üret
+    const defaultUsername = "User-" + Math.floor(Math.random() * 1000);
+    usernameInput.value = defaultUsername;
 
     rollBtn.addEventListener("click", () => {
-      const diceCount = parseInt(diceCountInput.value);
+      const diceCount = Math.min(30, parseInt(diceCountInput.value));
       const difficulty = parseInt(difficultyInput.value);
-      socket.emit("rollDice", { diceCount, userId, difficulty });
+      const username = usernameInput.value || defaultUsername;
+
+      socket.emit("rollDice", { diceCount, difficulty, username });
     });
 
-    socket.on("diceRolled", ({ results, userId, diceCount, timestamp, difficulty }) => {
+    socket.on("diceRolled", ({ results, username, diceCount, difficulty, timestamp }) => {
       resultsDiv.innerHTML = "";
       results.forEach(value => {
         const dice = document.createElement("div");
         dice.classList.add("dice");
-
         if (value >= difficulty) {
           dice.classList.add("success");
         } else {
           dice.classList.add("failure");
         }
-
         dice.textContent = value;
         resultsDiv.appendChild(dice);
       });
 
-      rolledByDiv.innerText = `${userId} rolled ${diceCount} dice (Difficulty: ${difficulty}) at ${new Date(timestamp).toLocaleTimeString()}`;
+      rolledByDiv.innerText = `${username} rolled ${diceCount} dice (Difficulty: ${difficulty}) at ${new Date(timestamp).toLocaleTimeString()}`;
+
+      // Geçmiş paneline ekle
+      const historyEntry = document.createElement("div");
+      historyEntry.classList.add("history-entry");
+      historyEntry.innerHTML = `
+        <strong>${username}</strong> rolled ${diceCount} dice<br/>
+        Difficulty: ${difficulty}<br/>
+        Results: [${results.join(", ")}]<br/>
+        <span style="font-size: 0.9em; color: #888;">${new Date(timestamp).toLocaleTimeString()}</span>
+      `;
+      historyDiv.prepend(historyEntry);
     });
   </script>
 </body>
