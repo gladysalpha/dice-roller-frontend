@@ -13,12 +13,13 @@
       padding: 2rem;
     }
 
-    input, button {
+    input, select, button {
       background-color: #1e1e1e;
       border: 1px solid #333;
       color: white;
       padding: 0.5rem 1rem;
       border-radius: 6px;
+      margin: 0.25rem;
     }
 
     button:hover {
@@ -38,6 +39,19 @@
       animation: roll 0.6s ease;
       border: 2px solid #444;
       box-shadow: 0 0 10px #000;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .success {
+      background-color: #2e7d32 !important; /* Yeşil */
+      color: #fff;
+      border-color: #66bb6a;
+    }
+
+    .failure {
+      background-color: #424242 !important; /* Gri */
+      color: #bbb;
+      border-color: #555;
     }
 
     @keyframes roll {
@@ -61,9 +75,18 @@
   <h1>🎲 Real-time d10 Dice Roller</h1>
   
   <label>
-    Number of dice: 
+    Dice count: 
     <input type="number" id="diceCount" value="1" min="1" max="10">
   </label>
+
+  <label>
+    Difficulty:
+    <select id="difficulty">
+      <!-- 1 to 10 options -->
+      ${[...Array(10)].map((_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+    </select>
+  </label>
+
   <button id="rollBtn">Roll</button>
 
   <div id="results"></div>
@@ -74,6 +97,7 @@
     const socket = io("https://dice-roller-backend-43jk.onrender.com");
 
     const diceCountInput = document.getElementById("diceCount");
+    const difficultyInput = document.getElementById("difficulty");
     const rollBtn = document.getElementById("rollBtn");
     const resultsDiv = document.getElementById("results");
     const rolledByDiv = document.getElementById("rolledBy");
@@ -82,19 +106,27 @@
 
     rollBtn.addEventListener("click", () => {
       const diceCount = parseInt(diceCountInput.value);
-      socket.emit("rollDice", { diceCount, userId });
+      const difficulty = parseInt(difficultyInput.value);
+      socket.emit("rollDice", { diceCount, userId, difficulty });
     });
 
-    socket.on("diceRolled", ({ results, userId, diceCount, timestamp }) => {
+    socket.on("diceRolled", ({ results, userId, diceCount, timestamp, difficulty }) => {
       resultsDiv.innerHTML = "";
       results.forEach(value => {
         const dice = document.createElement("div");
         dice.classList.add("dice");
+
+        if (value > difficulty) {
+          dice.classList.add("success");
+        } else {
+          dice.classList.add("failure");
+        }
+
         dice.textContent = value;
         resultsDiv.appendChild(dice);
       });
 
-      rolledByDiv.innerText = `${userId} rolled ${diceCount} dice at ${new Date(timestamp).toLocaleTimeString()}`;
+      rolledByDiv.innerText = `${userId} rolled ${diceCount} dice (Difficulty: ${difficulty}) at ${new Date(timestamp).toLocaleTimeString()}`;
     });
   </script>
 </body>
