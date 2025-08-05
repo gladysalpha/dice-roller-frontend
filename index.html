@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Real-time d10 Roller</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; text-align: center; }
+    .dice { display: inline-block; margin: 0.5rem; font-size: 2rem; }
+    #results { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>🎲 Real-time d10 Dice Roller</h1>
+  <label>Number of dice: 
+    <input type="number" id="diceCount" value="1" min="1" max="10">
+  </label>
+  <button id="rollBtn">Roll</button>
+
+  <div id="results"></div>
+  <div id="rolledBy"></div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io("https://dice-roller-backend-43jk.onrender.com");
+
+    const diceCountInput = document.getElementById("diceCount");
+    const rollBtn = document.getElementById("rollBtn");
+    const resultsDiv = document.getElementById("results");
+    const rolledByDiv = document.getElementById("rolledBy");
+
+    const userId = "User-" + Math.floor(Math.random() * 1000);
+
+    rollBtn.addEventListener("click", () => {
+      const diceCount = parseInt(diceCountInput.value);
+      socket.emit("rollDice", { diceCount, userId });
+    });
+
+    socket.on("diceRolled", ({ results, userId, diceCount, timestamp }) => {
+      resultsDiv.innerHTML = results.map(r => `<div class="dice">${r}</div>`).join("");
+      rolledByDiv.innerText = `${userId} rolled ${diceCount} dice at ${new Date(timestamp).toLocaleTimeString()}`;
+    });
+  </script>
+</body>
+</html>
