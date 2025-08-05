@@ -39,6 +39,7 @@
 
     .dice {
       display: inline-block;
+	  text-align: center;
       width: 60px;
       height: 60px;
       margin: 0.5rem;
@@ -90,11 +91,23 @@
     .username-box {
       margin-bottom: 1rem;
     }
+	
+	.rollBtn {
+	  font-size: 20px;
+	  margin: 30px 0 0 0;
+	  padding: 20px 40px;
+	  cursor: pointer;
+	}
+	
+	.rollBtn:hover{
+		background:#a38b79;
+		border: 1px solid #eee;
+	}
   </style>
 </head>
 <body>
   <div class="main">
-    <h1>🎲 Real-time d10 Dice Roller</h1>
+    <h1>🎲 Las Vegas Real-time d10 Dice Roller</h1>
 
     <div class="username-box">
       Username:
@@ -103,21 +116,24 @@
 
     <label>
       Dice count (max 30): 
-      <input type="number" id="diceCount" value="1" min="1" max="30">
+      <input type="number" id="diceCount" value="7" min="1" max="30">
     </label>
 
     <label>
       Difficulty:
       <select id="difficulty">
         <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-        <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+        <option selected>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
       </select>
     </label>
 
-    <button id="rollBtn">Roll</button>
-
+<div>
+    <button id="rollBtn" class="rollBtn" >Roll</button>
+</div>
+<div>
     <div id="results"></div>
     <div id="rolledBy"></div>
+</div>
   </div>
 
   <div class="sidebar">
@@ -164,6 +180,7 @@
       });
 
       rolledByDiv.innerText = `${username} rolled ${diceCount} dice (Difficulty: ${difficulty}) at ${new Date(timestamp).toLocaleTimeString()}`;
+	  
 
       // Geçmiş paneline ekle
       const historyEntry = document.createElement("div");
@@ -171,7 +188,8 @@
       historyEntry.innerHTML = `
         <strong>${username}</strong> rolled ${diceCount} dice<br/>
         Difficulty: ${difficulty}<br/>
-        Results: [${results.join(", ")}]<br/>
+        Success Count: ${results.filter((e) => e >= difficulty).length}<br/>
+        Results: [${results.map((e) => parseInt(e)).sort((a, b) => b - a).join(", ")}]<br/>
         <span style="font-size: 0.9em; color: #888;">${new Date(timestamp).toLocaleTimeString()}</span>
       `;
       historyDiv.prepend(historyEntry);
