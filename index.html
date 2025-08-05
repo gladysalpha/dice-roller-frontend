@@ -216,7 +216,7 @@
       historyEntry.innerHTML = `
         <strong>${username}</strong> rolled ${diceCount} dice<br/>
         Difficulty: ${difficulty}<br/>
-        Success Count: ${results.filter((e) => e >= difficulty).length - results.filter((e) => e == 1).length}<br/>
+        Success Count: ${results.filter((e) => e >= difficulty).length - results.filter((e) => difficulty > 1 ? e == 1 : false).length}<br/>
         Results: [${results.map((e) => parseInt(e)).sort((a, b) => b - a).join(", ")}]<br/>
         <span style="font-size: 0.9em; color: #888;">${new Date(timestamp).toLocaleTimeString()}</span>
       `;
