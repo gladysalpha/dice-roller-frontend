@@ -14,6 +14,11 @@
       height: 100vh;
       margin: 0;
     }
+	@media (max-width: 768px) {
+  body {
+    display: block;
+  }
+  }
 
     .main {
       flex: 2;
@@ -127,13 +132,13 @@
       </select>
     </label>
 
-<div>
-    <button id="rollBtn" class="rollBtn" >Roll</button>
-</div>
-<div>
-    <div id="results"></div>
-    <div id="rolledBy"></div>
-</div>
+	<div>
+		<button id="rollBtn" class="rollBtn" >Roll</button>
+	</div>
+	<div>
+		<div id="results"></div>
+		<div id="rolledBy"></div>
+	</div>
   </div>
 
   <div class="sidebar">
