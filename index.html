@@ -124,7 +124,7 @@
         const dice = document.createElement("div");
         dice.classList.add("dice");
 
-        if (value > difficulty) {
+        if (value >= difficulty) {
           dice.classList.add("success");
         } else {
           dice.classList.add("failure");
